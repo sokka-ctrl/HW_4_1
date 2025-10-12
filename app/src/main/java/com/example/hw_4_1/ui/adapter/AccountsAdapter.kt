@@ -6,7 +6,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.hw_4_1.data.model.Account
 import com.example.hw_4_1.databinding.ItemAccountBinding
 
-class AccountsAdapter: RecyclerView.Adapter<AccountsAdapter.AccountViewHolder>() {
+class AccountsAdapter(
+    val onEdit: (Account) -> Unit,
+    val onSwitchToogle: (String, Boolean) -> Unit,
+    val onDelete: (String) -> Unit
+): RecyclerView.Adapter<AccountsAdapter.AccountViewHolder>() {
     private val items  = arrayListOf<Account>()
 
     fun submitList(data: List<Account>){
@@ -36,6 +40,24 @@ class AccountsAdapter: RecyclerView.Adapter<AccountsAdapter.AccountViewHolder>()
           tvName.text = account.name
             val text = "${account.balance} ${account.currency}"
             tvBalance.text = text
+
+            btnEdit.setOnClickListener {
+                onEdit(account)
+            }
+
+            btnDelete.setOnClickListener {
+                account.id?.let {
+                    onDelete(it)
+                }
+
+            }
+            switcher.isChecked = account.isActive == true
+            switcher.setOnCheckedChangeListener { _, isChecked ->
+                account.id?.let {
+                    onSwitchToogle(it, isChecked)
+                }
+            }
+
         }
     }
 }
