@@ -12,7 +12,9 @@ import com.example.hw_4_1.databinding.ActivityMainBinding
 import com.example.hw_4_1.databinding.DialogAddBinding
 import com.example.hw_4_1.domain.presenter.AccountViewModel
 import com.example.hw_4_1.ui.adapter.AccountsAdapter
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     private lateinit var adapter: AccountsAdapter
