@@ -2,6 +2,7 @@ package com.example.hw_4_1.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
@@ -28,6 +29,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         subscribeLiveData()
         initAdapter()
+        observeErrors()
         binding.btnCreate.setOnClickListener {
             showAddDialog()
         }
@@ -74,14 +76,18 @@ class MainActivity : AppCompatActivity() {
         viewModel.accounts.observe(this) {
             adapter.submitList(it)
         }
+        viewModel.errorMessage.observe(this) { error ->
+            if (error != null) {
+                Toast.makeText(this, "Ошибка: $error", Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
     }
 
-    private fun showEditDialog(account: Account){
+    private fun showEditDialog(account: Account) {
         val binding = DialogAddBinding.inflate(LayoutInflater.from(this))
-        with(binding){
-
+        with(binding) {
             account.run {
-
                 etName.setText(name)
                 etBalance.setText(balance.toString())
                 etCurrency.setText(currency)
@@ -89,18 +95,19 @@ class MainActivity : AppCompatActivity() {
                 AlertDialog.Builder(this@MainActivity)
                     .setTitle("Изменение счета")
                     .setView(binding.root)
-                    .setPositiveButton("изменить"){_,_ ->
+                    .setPositiveButton("Изменить") { _, _ ->
                         val updatedAccount = account.copy(
                             name = etName.text.toString(),
                             balance = etBalance.text.toString().toInt(),
                             currency = etCurrency.text.toString()
                         )
-                        viewModel.updateAccountFully(updatedAccount)
-                    }.show()
+                        viewModel.updateAccountFully(id.toString(), updatedAccount)
+                    }
+                    .show()
             }
-
         }
     }
+
     private fun showDeleteDialog(id: String){
         AlertDialog.Builder(this)
             .setTitle("Вы уверены?")
@@ -111,5 +118,13 @@ class MainActivity : AppCompatActivity() {
             .setNegativeButton("отмена"){_,_ ->
 
             }.show()
+    }
+    private fun observeErrors() {
+        viewModel.errorMessage.observe(this) { err ->
+            err?.let {
+                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
+                viewModel.clearError()
+            }
+        }
     }
 }
