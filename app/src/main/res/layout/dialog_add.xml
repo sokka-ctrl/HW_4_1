@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/et_name"
+        android:layout_width="match_parent"
+        android:hint="Введите банк"
+        android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/et_balance"
+        android:layout_width="match_parent"
+        android:hint="Введите баланс"
+        android:inputType="numberDecimal"
+        android:layout_height="wrap_content"/>
+    <EditText
+        android:id="@+id/et_currency"
+        android:layout_width="match_parent"
+        android:hint="Введите валюту"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>
