@@ -4,8 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.example.hw_4_1.data.model.Account
-import com.example.hw_4_1.data.model.AccountState
-import com.example.hw_4_1.data.network.AccountsApi
+import com.example.hw_4_1.data.network.DeteilAccountsApi
 import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
@@ -13,37 +12,32 @@ import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
-class AccountViewModel @Inject constructor(
-    private val accountsApi: AccountsApi
-): ViewModel(){
-    private val _account = MutableLiveData<List<Account>>()
-    val accounts: LiveData<List<Account>> = _account
 
-
-     fun loadAcoounts() {
-        accountsApi.getAccount().
+class DeteilAccountViewModel @Inject constructor(
+    private val DeteilAccountsApi: DeteilAccountsApi
+): ViewModel() {
+    private val _account = MutableLiveData<Account>()
+    val account: LiveData<Account> = _account
+    fun loadAcoount(id: String) {
+        DeteilAccountsApi.getAccount(id).
         handleAccountResponse(
             onSuccess = { _account.value = it}
         )
-
     }
 
-     fun addAccount(account: Account) {
-        accountsApi.addAccount(account)
+        fun updateAccountFully(updatedAccount: Account) {
+        updatedAccount.id?.let {
+            DeteilAccountsApi.updateAccountFully(it, updatedAccount)
+                .handleAccountResponse()
+        }
+    }
+
+         fun deleteAccount(id: String) {
+             DeteilAccountsApi.deleteAccount(id)
             .handleAccountResponse()
     }
-
-
-     fun updateAccountPartially(id: String, isCheked: Boolean) {
-        accountsApi.updateAccountPartially(id, AccountState(isCheked))
-            .handleAccountResponse()
-    }
-
-
-
-
     private fun <T>Call<T>?.handleAccountResponse(
-        onSuccess: (T) -> Unit = { loadAcoounts() },
+        onSuccess: (T) -> Unit = { loadAcoount(it.toString())},
         onError: (String) -> Unit   = {}
     ) {
         this?.enqueue(object : Callback<T> {

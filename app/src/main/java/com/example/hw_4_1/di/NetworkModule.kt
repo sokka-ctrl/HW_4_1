@@ -1,6 +1,7 @@
 package com.example.hw_4_1.di
 
 import com.example.hw_4_1.data.network.AccountsApi
+import com.example.hw_4_1.data.network.DeteilAccountsApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -32,4 +33,7 @@ object NetworkModule {
 
     @Provides
     fun accountsApi(retrofit: Retrofit): AccountsApi = retrofit.create(AccountsApi::class.java)
+
+    @Provides
+    fun detailAccountApi(retrofit: Retrofit): DeteilAccountsApi = retrofit.create(DeteilAccountsApi::class.java)
 }
