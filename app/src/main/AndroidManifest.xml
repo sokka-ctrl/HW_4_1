@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.HW_4_1">
         <activity
-            android:name=".Detail_Activity"
+            android:name=".Deteil_Activity"
             android:exported="false" />
         <activity
             android:name=".ui.MainActivity"

@@ -15,75 +15,53 @@ import javax.inject.Inject
 @HiltViewModel
 class AccountViewModel @Inject constructor(
     private val accountsApi: AccountsApi
-) : ViewModel() {
-
+): ViewModel(){
     private val _account = MutableLiveData<List<Account>>()
     val accounts: LiveData<List<Account>> = _account
 
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?> = _errorMessage
 
+     fun loadAcoounts() {
+        accountsApi.getAccount().
+        handleAccountResponse(
+            onSuccess = { _account.value = it}
+        )
 
-    fun loadAcoounts() {
-        accountsApi.getAccount()
-            .handleAccountResponse(
-                onSuccess = { _account.value = it }
-            )
     }
 
-    fun addAccount(account: Account) {
+     fun addAccount(account: Account) {
         accountsApi.addAccount(account)
             .handleAccountResponse()
     }
 
-    fun updateAccountPartially(id: String, isChecked: Boolean) {
-        accountsApi.updateAccountPartially(id, AccountState(isChecked))
+
+     fun updateAccountPartially(id: String, isCheked: Boolean) {
+        accountsApi.updateAccountPartially(id, AccountState(isCheked))
             .handleAccountResponse()
     }
 
-    fun updateAccountFully(id: String, updatedAccount: Account) {
-        accountsApi.updateAccountFully(id, updatedAccount)
-            .handleAccountResponse()
-    }
 
-    fun deleteAccount(id: String) {
-        accountsApi.deleteAccount(id)
-            .handleAccountResponse()
-    }
 
-    private fun <T> Call<T>?.handleAccountResponse(
+
+    private fun <T>Call<T>?.handleAccountResponse(
         onSuccess: (T) -> Unit = { loadAcoounts() },
-        onError: (String) -> Unit = { _errorMessage.postValue(it) }
+        onError: (String) -> Unit   = {}
     ) {
-        if (this == null) {
-            _errorMessage.postValue("Ошибка: запрос не инициализирован")
-            return
-        }
-        try {
-            this.enqueue(object : Callback<T> {
-                override fun onResponse(call: Call<T>, response: Response<T>) {
-                    if (response.isSuccessful) {
-                        val result = response.body()
-                        if (result != null) {
-                            onSuccess(result)
-                        } else {
-                            _errorMessage.postValue("Пустой ответ от сервера")
-                        }
-                    } else {
-                        _errorMessage.postValue("Ошибка сервера: ${response.code()}")
-                    }
+        this?.enqueue(object : Callback<T> {
+            override fun onResponse(call: Call<T>, response: Response<T>) {
+                val result = response.body()
+                if (result != null && response.isSuccessful) {
+                    onSuccess(result)
+                } else {
+                    onError(response.code().toString())
                 }
+            }
 
-                override fun onFailure(call: Call<T>, t: Throwable) {
-                    _errorMessage.postValue("Нет соединения: ${t.localizedMessage}")
-                }
-            })
-        } catch (e: Exception) {
-            _errorMessage.postValue("Сетевая ошибка: ${e.localizedMessage}")
+            override fun onFailure(call: Call<T>, t: Throwable) {
+                onError(t.message.toString())
+            }
+
         }
-    }
 
-    fun clearError() {
-        _errorMessage.value = null
+        )
     }
 }

@@ -1,13 +1,15 @@
 package com.example.hw_4_1.ui
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
-import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.hw_4_1.Deteil_Activity
 import com.example.hw_4_1.data.model.Account
 import com.example.hw_4_1.databinding.ActivityMainBinding
 import com.example.hw_4_1.databinding.DialogAddBinding
@@ -29,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         subscribeLiveData()
         initAdapter()
-        observeErrors()
         binding.btnCreate.setOnClickListener {
             showAddDialog()
         }
@@ -58,15 +59,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun initAdapter() = with(binding) {
         adapter = AccountsAdapter(
-            onEdit = {
-                showEditDialog(it)
+            onClickCard = {
+                DeteilScreenAction(it
+                )
             },
             onSwitchToogle = {id, isCheked ->
                 viewModel.updateAccountPartially(id, isCheked)
-            },
-            onDelete = {
-                showDeleteDialog(it)
             }
+
+
         )
         recyclerView.layoutManager = LinearLayoutManager(this@MainActivity)
         recyclerView.adapter = adapter
@@ -76,55 +77,14 @@ class MainActivity : AppCompatActivity() {
         viewModel.accounts.observe(this) {
             adapter.submitList(it)
         }
-        viewModel.errorMessage.observe(this) { error ->
-            if (error != null) {
-                Toast.makeText(this, "Ошибка: $error", Toast.LENGTH_LONG).show()
-                viewModel.clearError()
-            }
-        }
     }
 
-    private fun showEditDialog(account: Account) {
-        val binding = DialogAddBinding.inflate(LayoutInflater.from(this))
-        with(binding) {
-            account.run {
-                etName.setText(name)
-                etBalance.setText(balance.toString())
-                etCurrency.setText(currency)
 
-                AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Изменение счета")
-                    .setView(binding.root)
-                    .setPositiveButton("Изменить") { _, _ ->
-                        val updatedAccount = account.copy(
-                            name = etName.text.toString(),
-                            balance = etBalance.text.toString().toInt(),
-                            currency = etCurrency.text.toString()
-                        )
-                        viewModel.updateAccountFully(id.toString(), updatedAccount)
-                    }
-                    .show()
-            }
-        }
-    }
-
-    private fun showDeleteDialog(id: String){
-        AlertDialog.Builder(this)
-            .setTitle("Вы уверены?")
-            .setMessage("Вы уверены что хотите удалить счет с индефикатором - ${id}")
-            .setPositiveButton("Удалить"){_,_, ->
-                viewModel.deleteAccount(id)
-            }
-            .setNegativeButton("отмена"){_,_ ->
-
-            }.show()
-    }
-    private fun observeErrors() {
-        viewModel.errorMessage.observe(this) { err ->
-            err?.let {
-                Toast.makeText(this, it, Toast.LENGTH_LONG).show()
-                viewModel.clearError()
-            }
-        }
+    private fun DeteilScreenAction(id: String?){
+        val intent = Intent(this, Deteil_Activity:: class.java)
+        intent.putExtra("accountid", id)
+        startActivity(intent)
+        Log.d("ololo", "${id}")
     }
 }
+
