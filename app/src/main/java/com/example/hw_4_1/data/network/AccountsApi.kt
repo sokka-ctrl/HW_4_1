@@ -18,20 +18,11 @@ interface AccountsApi {
     @POST("accounts")
     fun addAccount(@Body account: Account): Call<Unit>
 
-    @PUT("accounts/{id}")
-    fun updateAccountFully(
-        @Path("id") id: String,
-        @Body updatedAccount: Account): Call<Unit>
-
     @PATCH("accounts/{id}")
     fun updateAccountPartially(
         @Path("id") id: String,
         @Body accountState: AccountState
     ): Call<Unit>
 
-    @DELETE("accounts/{id}")
-    fun deleteAccount(
-        @Path("id") id: String
-    ): Call<Unit>
 
 }
